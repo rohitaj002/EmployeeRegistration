@@ -8,67 +8,153 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.min.js"></script>
 
     <script>
-        // $(document).ready(function() {
-        //     $("#registration-form").validate({
-        //         rules: {
-        //             name: {
-        //                 required: true,
-        //                 minlength: 3,
-        //                 lettersOnly: true
-        //             },
-        //             email: {
-        //                 required: true,
-        //                 email: true,
-        //                 remote: {
-        //                     url: "/api/check-email",
-        //                     type: "post"
-        //                 }
-        //             },
-        //             phone: {
-        //                 required: true,
-        //                 minlength: 10,
-        //                 maxlength: 10,
-        //                 digits: true,
-        //                 remote: {
-        //                     url: "/api/check-phone",
-        //                     type: "post"
-        //                 }
-        //             },
-        //             department: {
-        //                 required: true
-        //             }
-        //         },
-        //         messages: {
-        //             name: {
-        //                 required: "Please enter your name.",
-        //                 minlength: "Name should have at least 3 characters.",
-        //                 lettersOnly: "Name should contain only alphabets."
-        //             },
-        //             email: {
-        //                 required: "Please enter your email.",
-        //                 email: "Please enter a valid email.",
-        //                 remote: "Email already exists."
-        //             },
-        //             phone: {
-        //                 required: "Please enter your phone number.",
-        //                 minlength: "Phone number should have 10 digits.",
-        //                 maxlength: "Phone number should have 10 digits.",
-        //                 digits: "Phone number should contain digits only.",
-        //                 remote: "Phone number already exists."
-        //             },
-        //             department: {
-        //                 required: "Please select a department."
-        //             }
-        //         },
-        //         submitHandler: function(form) {
-        //             form.submit();
-        //         }
-        //     });
-        // });
+        $(document).ready(function() {
+            $("#registration-form").validate({
+                rules: {
+                    name: {
+                        required: true,
+                        minlength: 3,
+                        lettersOnly: true
+                    },
+                    // email: {
+                    //     required: true,
+                    //     email: true,
+                    //     remote: {
+                    //         url: "/api/check-email",
+                    //         type: "post"
+                    //     }
+                    // },
+                    // phone: {
+                    //     required: true,
+                    //     minlength: 10,
+                    //     maxlength: 10,
+                    //     digits: true,
+                    //     remote: {
+                    //         url: "/api/check-phone",
+                    //         type: "post"
+                    //     }
+                    // },
+                    department: {
+                        required: true
+                    }
+                },
+                messages: {
+                    name: {
+                        required: "Please enter your name.",
+                        minlength: "Name should have at least 3 characters.",
+                        lettersOnly: "Name should contain only alphabets."
+                    },
+                    // email: {
+                    //     required: "Please enter your email.",
+                    //     email: "Please enter a valid email.",
+                    //     remote: "Email already exists."
+                    // },
+                    // phone: {
+                    //     required: "Please enter your phone number.",
+                    //     minlength: "Phone number should have 10 digits.",
+                    //     maxlength: "Phone number should have 10 digits.",
+                    //     digits: "Phone number should contain digits only.",
+                    //     remote: "Phone number already exists."
+                    // },
+                    department: {
+                        required: "Please select a department."
+                    }
+                },
+                submitHandler: function(form) {
+                    form.submit();
+                }
+            });
+        });
 
-        // $.validator.addMethod("lettersOnly", function(value, element) {
-        //     return this.optional(element) || /^[A-Za-z]+$/i.test(value);
-        // }, "Letters only please.");
+        $.validator.addMethod("lettersOnly", function(value, element) {
+            return this.optional(element) || /^[A-Za-z]+$/i.test(value);
+        }, "Letters only please.");
+
+
+        $(document).ready(function() {
+        // Email validation
+            $('#email').on('input', function() {
+                var email = $(this).val();
+                if (email !== '') {
+                if (!isValidEmail(email)) {
+                    $('#email-error').text('Please enter a valid email address.');
+                } else {
+                    $('#email-error').empty();
+                    checkDuplicateEmail(email);
+                }
+                } else {
+                $('#email-error').empty();
+                }
+            });
+
+            // Email format validation
+            function isValidEmail(email) {
+                var emailPattern = /^[\w-]+(\.[\w-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,})$/;
+                return emailPattern.test(email);
+            }
+
+            // Check duplicate email using AJAX API
+            function checkDuplicateEmail(email) {
+                $.ajax({
+                url: '/api/check-email',
+                type: 'POST',
+                data: { email: email },
+                success: function(response) {
+                    if (response.exists) {
+                    $('#email-error').text('This email is already registered.');
+                    } else {
+                    $('#email-error').empty();
+                    }
+                },
+                error: function() {
+                    $('#email-error').text('Error occurred while checking email availability.');
+                }
+                });
+            }
+
+            // Phone number validation
+            $('#phone').on('input', function() {
+                var phone = $(this).val();
+                if (phone !== '') {
+                if (!isValidPhoneNumber(phone)) {
+                    $('#phone-error').text('Please enter a valid 10-digit phone number.');
+                } else {
+                    $('#phone-error').empty();
+                    checkDuplicatePhone(phone);
+                }
+                } else {
+                $('#phone-error').empty();
+                }
+            });
+
+            // Phone number format validation
+            function isValidPhoneNumber(phone) {
+                var phonePattern = /^[0-9]{10}$/;
+                return phonePattern.test(phone);
+            }
+
+            // Check duplicate phone number using AJAX API
+            function checkDuplicatePhone(phone) {
+                $.ajax({
+                url: '/api/check-phone',
+                type: 'POST',
+                data: { phone: phone },
+                success: function(response) {
+                    if (response.exists) {
+                    $('#phone-error').text('This phone number already exists.');
+                    } else {
+                    $('#phone-error').empty();
+                    }
+                },
+                error: function() {
+                    $('#phone-error').text('Error occurred while checking phone number availability.');
+                }
+                });
+            }
+
+        });
+
+
     </script>
 </head>
 <body>
@@ -83,10 +169,12 @@
             <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" class="form-control" id="email" name="email" required>
+                <span id ="email-error"></span>
             </div>
             <div class="form-group">
                 <label for="phone">Phone:</label>
                 <input type="text" class="form-control" id="phone" name="phone" minlength="10" maxlength="10" required>
+                <div id="phone-error" class="error-message"></div>
             </div>
             <div class="form-group">
                 <label for="department">Department:</label>

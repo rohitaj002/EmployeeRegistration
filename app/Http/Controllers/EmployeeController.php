@@ -36,18 +36,22 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|min:3|alpha',
-            'email' => 'required|email|unique:employee_details',
-            'phone' => 'required|digits:10|unique:employee_details',
-            'department' => 'required',
-        ]);
+        try{
+            $request->validate([
+                'name' => 'required|min:3|alpha',
+                'email' => 'required|email|unique:employee_details',
+                'phone' => 'required|digits:10|unique:employee_details',
+                'department' => 'required',
+            ]);
 
-        // die($validated);
-        EmployeeDetail::create($request->all());
 
-        return redirect()->route('employees.index')
-            ->with('success', 'Employee registered successfully.');
+            EmployeeDetail::create($request->all());
+
+            return redirect()->route('employees.index')
+                ->with('success', 'Employee registered successfully.');
+        } catch (ValidationException $exception) {
+            return redirect()->back()->with(Errors($exception->errors())->withInput());
+        }
     }
 
     /**
