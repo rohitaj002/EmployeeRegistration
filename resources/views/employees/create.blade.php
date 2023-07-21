@@ -76,20 +76,20 @@
             $('#email').on('input', function() {
                 var email = $(this).val();
                 if (email !== '') {
-                if (!isValidEmail(email)) {
-                    $('#email-error').text('Please enter a valid email address.');
+                    if (!isValidEmail(email)) {
+                        $('#email-error1').text('Please enter a valid email address.');
+                    } else {
+                        $('#email-error1').empty();
+                        checkDuplicateEmail(email);
+                    }
                 } else {
-                    $('#email-error').empty();
-                    checkDuplicateEmail(email);
-                }
-                } else {
-                $('#email-error').empty();
+                    $('#email-error1').empty();
                 }
             });
 
             // Email format validation
             function isValidEmail(email) {
-                var emailPattern = /^[\w-]+(\.[\w-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,})$/;
+                var emailPattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
                 return emailPattern.test(email);
             }
 
@@ -101,30 +101,31 @@
                 data: { email: email },
                 success: function(response) {
                     if (response.exists) {
-                    $('#email-error').text('This email is already registered.');
+                        $('#email-error1').text('This email is already registered.');
                     } else {
-                    $('#email-error').empty();
+                        $('#email-error1').empty();
                     }
                 },
                 error: function() {
-                    $('#email-error').text('Error occurred while checking email availability.');
+                    $('#email-error1').text('Error occurred while checking email availability.');
                 }
                 });
             }
 
             // Phone number validation
-            $('#phone').on('input', function() {
+            $('#phone').on('keyup', function() {
                 var phone = $(this).val();
                 if (phone !== '') {
-                if (!isValidPhoneNumber(phone)) {
-                    $('#phone-error').text('Please enter a valid 10-digit phone number.');
+                    if (!isValidPhoneNumber(phone)) {
+                        $('#phone-error1').text('Please enter a valid 10-digit phone number.');
+                    } else {
+                        $('#phone-error1').empty();
+                        checkDuplicatePhone(phone);
+                    }
                 } else {
-                    $('#phone-error').empty();
-                    checkDuplicatePhone(phone);
+                    $('#phone-error1').empty();
                 }
-                } else {
-                $('#phone-error').empty();
-                }
+                
             });
 
             // Phone number format validation
@@ -136,19 +137,19 @@
             // Check duplicate phone number using AJAX API
             function checkDuplicatePhone(phone) {
                 $.ajax({
-                url: '/api/check-phone',
-                type: 'POST',
-                data: { phone: phone },
-                success: function(response) {
-                    if (response.exists) {
-                    $('#phone-error').text('This phone number already exists.');
-                    } else {
-                    $('#phone-error').empty();
+                    url: '/api/check-phone',
+                    type: 'POST',
+                    data: { phone: phone },
+                    success: function(response) {
+                        if (response.exists) {
+                            $('#phone-error1').text('This phone number already exists.');
+                        } else {
+                            $('#phone-error1').empty();
+                        }
+                    },
+                    error: function() {
+                        $('#phone-error1').text('Error occurred while checking phone number availability.');
                     }
-                },
-                error: function() {
-                    $('#phone-error').text('Error occurred while checking phone number availability.');
-                }
                 });
             }
 
@@ -169,12 +170,12 @@
             <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" class="form-control" id="email" name="email" required>
-                <span id ="email-error"></span>
+                <span id ="email-error1"></span>
             </div>
             <div class="form-group">
                 <label for="phone">Phone:</label>
                 <input type="text" class="form-control" id="phone" name="phone" minlength="10" maxlength="10" required>
-                <div id="phone-error" class="error-message"></div>
+                <div id="phone-error1" class="error-message"></div>
             </div>
             <div class="form-group">
                 <label for="department">Department:</label>
